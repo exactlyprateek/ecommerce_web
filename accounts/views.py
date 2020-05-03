@@ -4,6 +4,8 @@ from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from .models import *
 from .forms import OrderForm
+from .filters import OrderFilter
+from django.contrib.auth.forms import UserCreationForm
 
 def home(request):
 	orders = Order.objects.all()
@@ -23,10 +25,15 @@ def customer(request, pk):
 	customer = Customer.objects.get(id=pk)
 	orders = customer.order_set.all()
 	order_count = orders.count()
+
+	myFilter = OrderFilter(request.GET,queryset=orders)
+	orders = myFilter.qs
+
 	context = {
 		'customer': customer,
 		'orders': orders,
-		'order_count': order_count
+		'order_count': order_count,
+		'myFilter': myFilter
 	}
 	return render(request, 'accounts/customer.html', context)
 
@@ -55,7 +62,7 @@ def createOrder(request,pk):
 def updateOrder(request, pk):
 	 
 	order = Order.objects.get(id=pk)
-	form = OrderForm(instance=order);
+	form = OrderForm(instance=order)
 
 	if request.method == 'POST':
 		# print("Printing Post: ",request.POST)
@@ -77,3 +84,14 @@ def delete(request, pk):
 
 	context = {'item': order}
 	return render(request, 'accounts/delete.html', context)
+
+def loginPage(request):
+	context = {}
+	return render(request, 'accounts/login.html', context)
+
+def registerPage(request):
+	form = UserCreationForm()
+	if form.is_valid():
+		form.save()
+	context = {'form': form}
+	return render(request, 'accounts/register.html', context)
