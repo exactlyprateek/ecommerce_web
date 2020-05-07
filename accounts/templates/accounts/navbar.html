@@ -1,5 +1,12 @@
 {% load static %}
 
+<style>
+  .hello-msg {
+    font-size: large;
+    color: #ffffff;
+  }
+</style>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <a href="#">
     <img src="{% static 'images/logo1.png' %}" style="height: 50px; width: 60px;">
@@ -12,6 +19,7 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
+      {% if request.user.is_staff %}
       <li class="nav-item active">
         <a class="nav-link" href="{% url 'home' %}">Dashboard <span class="sr-only">(current)</span></a>
       </li>
@@ -19,9 +27,9 @@
         <a class="nav-link" href="{% url 'products' %}">Products</a>
       </li>
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+    {% endif %}
   </div>
+  <span class="hello-msg">Hello, {{ request.user }}</span>
+  <span class="hello-msg" style="color: aliceblue;padding: 5px;margin-left: 10px; text-decoration: none;"><a
+      href="{% url 'logout' %}">logout</a></span>
 </nav>
