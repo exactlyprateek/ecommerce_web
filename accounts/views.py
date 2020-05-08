@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 from .models import *
-from .forms import OrderForm, CreateUserForm
+from .forms import OrderForm, CreateUserForm, CustomerForm
 from .filters import OrderFilter
 from .decorators import unauthenticated_user, allowed_users, admin_only
 
@@ -28,6 +28,7 @@ def registerPage(request):
 			user.groups.add(group)
 			Customer.objects.create(
 				user=user,
+				name=user.username,
 			)
 			messages.success(request, 'Account was created for ' + username)
 
@@ -70,6 +71,20 @@ def userPage(request):
 	'total_orders':total_orders,'delivered':delivered,
 	'pending':pending }
 	return render(request, 'accounts/user.html', context)
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])
+def accountSettings(request):
+	user = request.user.customer
+	form = CustomerForm(instance=user)
+
+	if request.method == 'POST':
+		form = CustomerForm(request.POST, request.FILES, instance=user)
+		if form.is_valid():
+			form.save()
+
+	context = {'form': form}
+	return render(request, 'accounts/account_settings.html', context)
 
 @login_required(login_url='login')
 @admin_only
